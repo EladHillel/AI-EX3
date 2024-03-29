@@ -75,7 +75,7 @@ def example_driver():
     print("\nFinal policy:")
     policy = get_policy(mdp, U_new)
     mdp.print_policy(policy)
-'''
+
     print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
     print("@@@@@@@@@ Policy iteration @@@@@@@@")
     print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
@@ -96,7 +96,7 @@ def example_driver():
 
     print("Done!")
 
-'''
+
 if __name__ == '__main__':
 
     # run our example
