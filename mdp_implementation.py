@@ -104,8 +104,8 @@ def policy_iteration(mdp, policy_init):
 
 """For this functions, you can import what ever you want """
 
-
-def get_all_policies(mdp, U):  # You can add more input parameters as needed
+# if 2 numbersd are epsilon from each other, they are equal for this function
+def get_all_policies(mdp, U, epsilon = 10**(-2)):  # You can add more input parameters as needed
     # TODO:
     # Given the mdp, and the utility value U (which satisfies the Belman equation)
     # print / display all the policies that maintain this value
@@ -113,19 +113,48 @@ def get_all_policies(mdp, U):  # You can add more input parameters as needed
     #
     # return: the number of different policies
     #
+    move_to_arrow = {"UP" : '↑', "RIGHT" : '→', "LEFT" : '←', "DOWN" : '↓'}
+    policies = [['' for c in range(mdp.num_col)] for r in range(mdp.num_row)]
+    for r in range(mdp.num_row):
+        for c in range(mdp.num_col):
+            for action in mdp.actions:
+                if (abs(utility_under_action(mdp, action, (r,c), U)- U[r][c]) <= epsilon):
+                    policies[r][c] += move_to_arrow[action]
+    for r in range(mdp.num_row):
+        for c in range(mdp.num_col):
+            print ("| " + policies[r][c] + " "*(5-len(policies[r][c])) + "|", end='')
+        print("")
+    return policies
 
-    # ====== YOUR CODE: ======
-    raise NotImplementedError
-    # ========================
 
+def convert_board(mdp, newR):
+    for r in range(mdp.num_row):
+        for c in range(mdp.num_col):
+            if not ((r,c) in mdp.terminal_states or mdp.board[r][c] == 'WALL'):
+                mdp.board[r][c] = newR
+            
 
-def get_policy_for_different_rewards(mdp):  # You can add more input parameters as needed
-    # TODO:
-    # Given the mdp
-    # print / displas the optimal policy as a function of r
-    # (reward values for any non-finite state)
-    #
+def get_policy_for_different_rewards(mdp, accuracy=0.01):  # You can add more input parameters as needed
+    R = -5
+    convert_board(mdp, R)
+    cur_directions = get_policy(mdp,value_iteration(mdp, [[0 for _ in range(mdp.num_col)] for _ in range(mdp.num_row)]))
+    while R < 5:
+        prev_R = R
+        init_directions = [row[:] for row in cur_directions]
+        while all(row1 == row2 for row1, row2 in zip(init_directions, cur_directions)):
+            R += accuracy
+            if R >=5:
+                break
+            convert_board(mdp, R)
+            cur_directions = get_policy(mdp, value_iteration(mdp, [[0 for _ in range(mdp.num_col)] for _ in range(mdp.num_row)]))
+        mdp.print_policy(cur_directions)
+        if prev_R == -5:
+            print("R(s) < " + str(R))
+        elif R >= 5:
+            print("R(s) > " + str(prev_R))
+        else:
+            print(str(prev_R) + " < R(s) < " + str(R))
+        print("")
+        print("-------------------------------------------")
 
-    # ====== YOUR CODE: ======
-    raise NotImplementedError
-    # ========================
+            
