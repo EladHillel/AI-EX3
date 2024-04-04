@@ -1,4 +1,5 @@
 from copy import deepcopy
+import copy
 import numpy as np
 
 def utility_under_action(mdp, wanted_action, currentState, U_vec):
@@ -72,7 +73,8 @@ def policy_evaluation(mdp, policy):
             R[i] = 0
         else:
             R[i] = mdp.board[i//mdp.num_col][i%mdp.num_col]
-    return np.dot(np.linalg.inv(I-mdp.gamma*P), R).reshape((mdp.num_row, mdp.num_col))
+    policy_ans =  np.dot(np.linalg.inv(I-mdp.gamma*P), R).reshape((mdp.num_row, mdp.num_col))
+    return policy_ans
     
 
 
@@ -91,6 +93,7 @@ def policy_iteration(mdp, policy_init):
         for r in range(mdp.num_row):
             for c in range(mdp.num_col):
                 if (r,c) in mdp.terminal_states or mdp.board[r][c] == 'WALL':
+                    policy_table_curr[r][c] = None
                     continue
                 prev_action = policy_table_prev[r][c]
                 prev_value = utility_under_action(mdp, prev_action, (r,c), U)
@@ -103,6 +106,20 @@ def policy_iteration(mdp, policy_init):
 
 
 """For this functions, you can import what ever you want """
+# does the get_all_policies logic. doesn't print and returns a 2d array of policies
+def get_all_policies_helper(mdp, U, epsilon= 10**-2):
+    move_to_arrow = {"UP" : '↑', "RIGHT" : '→', "LEFT" : '←', "DOWN" : '↓'}
+    policies = [['' for c in range(mdp.num_col)] for r in range(mdp.num_row)]
+    for r in range(mdp.num_row):
+        for c in range(mdp.num_col):
+            if (r,c) in mdp.terminal_states or mdp.board[r][c] == 'WALL':
+                policies[r][c] = None
+                continue
+            best_utility = max([utility_under_action(mdp, action, (r,c), U) for action in mdp.actions])
+            for action in mdp.actions:
+                if (abs(utility_under_action(mdp, action, (r,c), U)- best_utility) <= epsilon):
+                    policies[r][c] += move_to_arrow[action]
+    return policies
 
 # if 2 numbersd are epsilon from each other, they are equal for this function
 def get_all_policies(mdp, U, epsilon = 10**(-2)):  # You can add more input parameters as needed
@@ -113,19 +130,14 @@ def get_all_policies(mdp, U, epsilon = 10**(-2)):  # You can add more input para
     #
     # return: the number of different policies
     #
-    move_to_arrow = {"UP" : '↑', "RIGHT" : '→', "LEFT" : '←', "DOWN" : '↓'}
-    policies = [['' for c in range(mdp.num_col)] for r in range(mdp.num_row)]
-    for r in range(mdp.num_row):
-        for c in range(mdp.num_col):
-            for action in mdp.actions:
-                if (abs(utility_under_action(mdp, action, (r,c), U)- U[r][c]) <= epsilon):
-                    policies[r][c] += move_to_arrow[action]
-    for r in range(mdp.num_row):
-        for c in range(mdp.num_col):
-            print ("| " + policies[r][c] + " "*(5-len(policies[r][c])) + "|", end='')
-        print("")
-    return policies
-
+    policies = get_all_policies_helper(mdp, U, epsilon)
+    mdp.print_policy(policies)
+    mult = 1
+    for r in policies:
+        for c in r:
+            if c != None: # and len(c) > 0??
+                mult *= len(c)
+    return mult
 
 def convert_board(mdp, newR):
     for r in range(mdp.num_row):
@@ -136,18 +148,22 @@ def convert_board(mdp, newR):
 
 def get_policy_for_different_rewards(mdp, accuracy=0.01):  # You can add more input parameters as needed
     R = -5
-    convert_board(mdp, R)
-    cur_directions = get_policy(mdp,value_iteration(mdp, [[0 for _ in range(mdp.num_col)] for _ in range(mdp.num_row)]))
+    R_Where_there_was_a_change = []
+    new_mdp = copy.deepcopy(mdp)
+    convert_board(new_mdp, R)
+    cur_directions = get_all_policies_helper(new_mdp,value_iteration(new_mdp, [[0 for _ in range(new_mdp.num_col)] for _ in range(new_mdp.num_row)]))
     while R < 5:
         prev_R = R
         init_directions = [row[:] for row in cur_directions]
         while all(row1 == row2 for row1, row2 in zip(init_directions, cur_directions)):
             R += accuracy
-            if R >=5:
+            if R >5:
                 break
-            convert_board(mdp, R)
-            cur_directions = get_policy(mdp, value_iteration(mdp, [[0 for _ in range(mdp.num_col)] for _ in range(mdp.num_row)]))
-        mdp.print_policy(cur_directions)
+            convert_board(new_mdp, R)
+            cur_directions = get_all_policies_helper(new_mdp, value_iteration(new_mdp, [[0 for _ in range(new_mdp.num_col)] for _ in range(new_mdp.num_row)]))
+        new_mdp.print_policy(cur_directions)
+        if R < 5:
+            R_Where_there_was_a_change.append(R)
         if prev_R == -5:
             print("R(s) < " + str(R))
         elif R >= 5:
@@ -156,5 +172,6 @@ def get_policy_for_different_rewards(mdp, accuracy=0.01):  # You can add more in
             print(str(prev_R) + " < R(s) < " + str(R))
         print("")
         print("-------------------------------------------")
+    return R_Where_there_was_a_change
 
             

@@ -97,11 +97,13 @@ def example_driver():
     U_test =  [[0, 0, 0, 1],
                 [0, 0, 0, -1],
                 [0, 0, 0, 0]]
-    get_all_policies(mdp, U_test)
+    print (" @@@@@@@ Get_all_policies @@@@@@@@@")
+    a = get_all_policies(mdp, U_test)
+    print("get_all_policies returned: " + str(a))
     print("LAST FUNC YO YO:")
     print("")
     print ("")
-    get_policy_for_different_rewards(mdp)
+    R_arr = get_policy_for_different_rewards(mdp)
     print("Done!")
 
 
