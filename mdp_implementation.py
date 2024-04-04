@@ -72,8 +72,8 @@ def policy_evaluation(mdp, policy):
         if mdp.board[i//mdp.num_col][i%mdp.num_col] == 'WALL':
             R[i] = 0
         else:
-            R[i] = mdp.board[i//mdp.num_col][i%mdp.num_col]
-    policy_ans =  np.dot(np.linalg.inv(I-mdp.gamma*P), R).reshape((mdp.num_row, mdp.num_col))
+            R[i] = float(mdp.board[i//mdp.num_col][i%mdp.num_col])
+    policy_ans = np.dot(np.linalg.inv(I-mdp.gamma*P), R).reshape((mdp.num_row, mdp.num_col))
     return policy_ans
     
 
