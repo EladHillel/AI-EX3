@@ -1,7 +1,8 @@
 import argparse
 import os
 from mdp import MDP
-from mdp_implementation import value_iteration, get_policy, policy_evaluation, policy_iteration, get_all_policies, get_policy_for_different_rewards
+from mdp_implementation import value_iteration, get_policy, policy_evaluation, policy_iteration, \
+    get_policy_for_different_rewards, get_all_policies
 
 
 def is_valid_file(parser, arg):
@@ -12,8 +13,7 @@ def is_valid_file(parser, arg):
 def example_driver():
 
     """
-    This is an example of a driver function, after implementing the functions
-    in "value_and_policy_iteration.py" you will be able to run this code with no errors.
+    This is an example of a driver function
     """
 
     parser = argparse.ArgumentParser()
@@ -93,17 +93,24 @@ def example_driver():
     print("\nFinal policy:")
     policy_new = policy_iteration(mdp, policy)
     mdp.print_policy(policy_new)
-    print ("TIME FOR SOME BERMAN TESTS:")
-    U_test =  [[0, 0, 0, 1],
-                [0, 0, 0, -1],
-                [0, 0, 0, 0]]
-    print (" @@@@@@@ Get_all_policies @@@@@@@@@")
-    a = get_all_policies(mdp, U_test)
-    print("get_all_policies returned: " + str(a))
-    print("LAST FUNC YO YO:")
-    print("")
-    print ("")
-    R_arr = get_policy_for_different_rewards(mdp)
+
+    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    print("@@@@@@@@@ get_all_policies @@@@@@@@")
+    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    mega_ultra_special_secret_U = [[0.749, 0.819, 0.876, 1.0],
+                                   [0.692, 0, 0.564, -1.0],
+                                   [0.623, 0.566, 0.518, 0.252]]
+    retval = get_all_policies(mdp, mega_ultra_special_secret_U)
+    print("Policy Number:{0} ".format(retval))
+
+    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    print("@@@@@@@@@ get_policy_for_different_rewards @@@@@@@@")
+    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    r_vals = get_policy_for_different_rewards(mdp)
+    print("R values are:")
+    print(r_vals)
+
+
     print("Done!")
 
 

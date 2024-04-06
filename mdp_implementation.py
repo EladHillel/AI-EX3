@@ -107,7 +107,7 @@ def policy_iteration(mdp, policy_init):
 
 """For this functions, you can import what ever you want """
 # does the get_all_policies logic. doesn't print and returns a 2d array of policies
-def get_all_policies_helper(mdp, U, epsilon= 10**-2):
+def get_all_policies_helper(mdp, U, epsilon= 10**-3):
     move_to_arrow = {"UP" : '↑', "RIGHT" : '→', "LEFT" : '←', "DOWN" : '↓'}
     policies = [['' for c in range(mdp.num_col)] for r in range(mdp.num_row)]
     for r in range(mdp.num_row):
@@ -122,7 +122,7 @@ def get_all_policies_helper(mdp, U, epsilon= 10**-2):
     return policies
 
 # if 2 numbersd are epsilon from each other, they are equal for this function
-def get_all_policies(mdp, U, epsilon = 10**(-2)):  # You can add more input parameters as needed
+def get_all_policies(mdp, U, epsilon = 10**(-3)):  # You can add more input parameters as needed
     # TODO:
     # Given the mdp, and the utility value U (which satisfies the Belman equation)
     # print / display all the policies that maintain this value
@@ -146,22 +146,23 @@ def convert_board(mdp, newR):
                 mdp.board[r][c] = newR
             
 
-def get_policy_for_different_rewards(mdp, accuracy=0.01):  # You can add more input parameters as needed
+def get_policy_for_different_rewards(mdp, epsilon=10**-3):  # You can add more input parameters as needed
     R = -5
     R_Where_there_was_a_change = []
     new_mdp = copy.deepcopy(mdp)
     convert_board(new_mdp, R)
-    cur_directions = get_all_policies_helper(new_mdp,value_iteration(new_mdp, [[0 for _ in range(new_mdp.num_col)] for _ in range(new_mdp.num_row)]))
+    cur_directions = get_all_policies_helper(new_mdp, value_iteration(new_mdp, [[0 for _ in range(new_mdp.num_col)] for _ in range(new_mdp.num_row)]), epsilon)
     while R < 5:
         prev_R = R
         init_directions = [row[:] for row in cur_directions]
         while all(row1 == row2 for row1, row2 in zip(init_directions, cur_directions)):
-            R += accuracy
-            if R >5:
+            R += 10**-2
+            if R > 5:
                 break
             convert_board(new_mdp, R)
-            cur_directions = get_all_policies_helper(new_mdp, value_iteration(new_mdp, [[0 for _ in range(new_mdp.num_col)] for _ in range(new_mdp.num_row)]))
+            cur_directions = get_all_policies_helper(new_mdp, value_iteration(new_mdp, [[0 for _ in range(new_mdp.num_col)] for _ in range(new_mdp.num_row)]), epsilon)
         new_mdp.print_policy(cur_directions)
+        R = round(R,3)
         if R < 5:
             R_Where_there_was_a_change.append(R)
         if prev_R == -5:
